@@ -2,27 +2,28 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"net"
 )
 
 func main() {
-	conn, err := net.Dial("tcp", "localhost:8000")
+	conn, err := net.Dial("tcp", "localhost:9090")
 	if err != nil {
 		fmt.Println("Connection Error:", err)
+		return
 	}
 	defer conn.Close()
-
-	message := "hello echo server"
-	len, err := conn.Write([]byte(message))
-	if err != nil {
-		fmt.Println("Write Error:", err)
-	}
-	fmt.Println("message length", len)
 
 	buffer := make([]byte, 1024)
 	n, err := conn.Read(buffer)
 	if err != nil {
-		fmt.Println("read Error:", err)
+		if err != io.EOF {
+			fmt.Println("Reading Error:", err)
+			return
+		}
+		fmt.Println("Error:", err)
+		return
 	}
-	fmt.Println(string(buffer[:n]))
+
+	fmt.Println("current time:", string(buffer[:n]))
 }

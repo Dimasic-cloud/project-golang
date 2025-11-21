@@ -2,17 +2,18 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"net"
+	"time"
 )
 
 func main() {
-	listener, err := net.Listen("tcp", ":8000")
+	listener, err := net.Listen("tcp", ":9090")
 	if err != nil {
 		panic(err)
 	}
 	defer listener.Close()
 
+	fmt.Println("start")
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
@@ -27,18 +28,6 @@ func main() {
 func handleConnection(conn net.Conn) {
 	defer conn.Close()
 
-	buffer := make([]byte, 1024)
-	for {
-		n, err := conn.Read(buffer)
-		if err != nil {
-			if err != io.EOF {
-				fmt.Println("read error:", err)
-			}
-			return
-		}
-
-		data := string(buffer[:n])
-		fmt.Println("message:", data)
-		conn.Write([]byte(data))
-	}
+	currentTime := time.Now().Format("2006-01-02 15:04:05")
+	conn.Write([]byte(currentTime))
 }
